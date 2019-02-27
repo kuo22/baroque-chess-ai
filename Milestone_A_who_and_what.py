@@ -71,7 +71,7 @@ Team:
 # Change the following to represent your own information:
 
 kuo = Partner("Kuo", "Hong", "kuo22")
-john = Partner("Doe", "John", "jd007")
+john = Partner("McNulty", "Zachary", "zmcnulty")
 team = [kuo, john]
 
 OPTION = '1'
