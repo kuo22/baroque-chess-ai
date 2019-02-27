@@ -71,8 +71,8 @@ Team:
 # Change the following to represent your own information:
 
 kuo = Partner("Kuo", "Hong", "kuo22")
-zachary = Partner("McNulty", "Zachary", "zmcnulty")
-team = [kuo, zachary]
+john = Partner("Doe", "John", "jd007")
+team = [kuo, john]
 
 OPTION = '1'
 # Legal options are 1, 2, and 3.
@@ -94,10 +94,10 @@ code and defining the personality of the agent.'''
 reference1 = '''Wikipedia article on Baroque Chess;
     URL: https://en.wikipedia.org/wiki/Baroque_chess (accessed Feb. 22, 2018)'''
 
-reference2 = '''"What\'s Wrong with Ultima," by Robert Abbott,
-    available online at: http://www.logicmazes.com/games/wgr.html'''
+reference2 = '''"Minimax Algorithm in Game Theory | Set 5 (Zobrist Hashing)" by Akshay L Aradhya,
+    available online at: https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-5-zobrist-hashing/'''
 
-our_submission = Who_and_what([kuo, zachary], OPTION, title, approach, workload_distribution, [reference1, reference2])
+our_submission = Who_and_what([kuo, john], OPTION, title, approach, workload_distribution, [reference1, reference2])
 
 # You can run this file from the command line by typing:
 # python3 who_and_what.py
