@@ -71,33 +71,33 @@ Team:
 # Change the following to represent your own information:
 
 kuo = Partner("Kuo", "Hong", "kuo22")
-john = Partner("Doe", "John", "jd007")
-team = [kuo, john]
+zack = Partner("McNulty", "Zachary", "zmcnulty")
+team = [kuo, zack]
 
 OPTION = '1'
 # Legal options are 1, 2, and 3.
 
-title = "A Blustering Baroque Chess Player"
+title = "The Only Remaining Baroque Chess Player"
 
-approach = '''Our approach will be to first understand the rules,
-then code our move generator, develop a static evaluation function,
-a personality for the agent, and then optimize using alpha-beta
+approach = '''Our approach will be to first understand the rules
+and strategies for gaining advantage in the game.  We will then
+develop a static evaluation function that checks for the optimal
+move after examining every piece.  And then optimize using alpha-beta
 pruning, Zobrist hashing, and comparison of alternative static
-evaluation functions.'''
+evaluation functions.  We will make a personality for the agent last.'''
 
-workload_distribution = '''Maggie will have primary responsibility for the 
-static evaluation function, John will have primary responsibility for
-the optimizations of alpha-beta pruning and Zobrist hashing, and both
-partners expect to be closely involved in writing the move-generation
-code and defining the personality of the agent.'''
+workload_distribution = '''Kuo will have primary responsibility for optimizing
+alpha-beta pruning and Zobrist hashing, Zack will have primary responsibility for
+creating the static evaluation and checking for legal moves, and both
+partners will come up with a personality and remarks for the agent.'''
 
 reference1 = '''Wikipedia article on Baroque Chess;
-    URL: https://en.wikipedia.org/wiki/Baroque_chess (accessed Feb. 22, 2018)'''
+    URL: https://en.wikipedia.org/wiki/Baroque_chess (accessed Feb. 25, 2018)'''
 
 reference2 = '''"Minimax Algorithm in Game Theory | Set 5 (Zobrist Hashing)" by Akshay L Aradhya,
-    available online at: https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-5-zobrist-hashing/'''
+    available online at: https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-5-zobrist-hashing/ (accessed Feb. 27, 2018)'''
 
-our_submission = Who_and_what([kuo, john], OPTION, title, approach, workload_distribution, [reference1, reference2])
+our_submission = Who_and_what([kuo, zack], OPTION, title, approach, workload_distribution, [reference1, reference2])
 
 # You can run this file from the command line by typing:
 # python3 who_and_what.py
