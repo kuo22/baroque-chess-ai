@@ -6,9 +6,12 @@ BLACK = 0
 # NOTE: set to a non-integer value so that EMPTY % 2 != WHITE or BLACK
 EMPTY = 0.5
 
+# TODO: have the moves for the imitators say which piece it is behaving as?
+
 from BC_state_etc import BC_state
 from BC_state_etc import parse
 import itertools
+import time
 
 def valid_moves(current_board):
 
@@ -70,27 +73,30 @@ def pincer_moves(board, position):
     col = position[1]
     num_rows = len(board.board)
     num_cols = len(board.board[0])
+    all_moves = []
 
     k = 1
     # 0 is the empty tile
     while col+k < num_cols and board.board[row][col + k] == EMPTY:
-        yield (row, col + k)
+        all_moves.append((row, col+ k))
         k += 1
 
     k = 1
     while col - k >= 0 and board.board[row][col - k] == EMPTY:
-        yield (row, col - k)
+        all_moves.append((row, col - k))
         k += 1
     
     k = 1
     while row + k < num_rows and board.board[row + k][col] == EMPTY:
-        yield (row + k, col)
+        all_moves.append((row + k, col))
         k += 1
 
     k = 1
     while row - k >= 0 and board.board[row - k][col] == EMPTY:
-        yield (row - k, col)
+        all_moves.append((row - k, col))
         k += 1
+        
+    return all_moves
 
 def coordinator_moves(board, position):
     return itertools.chain(pincer_moves(board, position), diagonal_moves(board, position)) 
@@ -102,60 +108,104 @@ def leaper_moves(board, position):
     num_cols = len(board.board[0])
     whose_move = board.whose_move
 
+    all_moves = []
+
     k = 1
     # NOTE: if board piece's number % 2 == whose_move, then that board piece is the 
     # same color as the leaper. Cannot jump over friendly pieces.
     while col+k < num_cols and board.board[row][col + k] % 2 != whose_move:
         if board.board[row][col + k] == EMPTY:
-            yield (row, col + k)
+#            yield (row, col + k)
+            all_moves.append( (row, col + k))
         k += 1
 
     k = 1
     while col - k >= 0 and board.board[row][col - k] % 2 != whose_move:
         if board.board[row][col - k] == EMPTY:
-            yield (row, col - k)
+#            yield (row, col - k)
+            all_moves.append((row, col - k))
         k += 1
     
     k = 1
     while row + k < num_rows and board.board[row + k][col] % 2 != whose_move:
         if board.board[row + k][col] == EMPTY:
-            yield (row + k, col)
+#            yield (row + k, col)
+            all_moves.append((row+k, col))
         k += 1
 
     k = 1
     while row - k >= 0 and board.board[row - k][col] % 2 != whose_move:
         if board.board[row - k][col] == EMPTY:
-            yield (row - k, col)
+#            yield (row - k, col)
+            all_moves.append((row - k, col))
         k+=1
 
     k = 1
     while col+k < num_cols and row + k < num_rows and board.board[row + k][col + k] % 2 != whose_move:
         if board.board[row + k][col + k] == EMPTY:
-            yield (row + k, col + k)
+#            yield (row + k, col + k)
+            all_moves.append((row + k, col + k))
         k += 1
 
     k = 1
     while col - k >= 0 and row + k < num_rows and board.board[row + k][col - k] % 2 != whose_move:
         if board.board[row + k][col - k] == EMPTY:
-            yield (row + k, col - k)
+#               yield (row + k, col - k)
+                all_moves.append((row + k, col - k))
         k += 1
     
     k = 1
     while row - k >= 0 and col - k >= 0 and board.board[row - k][col - k] % 2 != whose_move:
         if board.board[row - k][col - k] == EMPTY:
-            yield (row - k, col - k)
+#            yield (row - k, col - k)
+            all_moves.append((row - k, col - k))
         k += 1
 
     k = 1
     while row - k >= 0 and col + k < num_cols and board.board[row - k][col + k] % 2 != whose_move:
         if board.board[row - k][col + k] == EMPTY:
-            yield (row - k, col + k)
+            all_moves.append((row - k, col + k))
+#            yield (row - k, col + k)
 
         k += 1
 
+    return all_moves
+
 
 def imitator_moves(board, position):
-    return []
+    # NOTE there are a few special cases to consider for the imitator; mostly, it can move like a leaper when
+    # capturing a leaper
+    num_rows = len(board.board)
+    num_cols = len(board.board[0])
+    whose_move = board.whose_move
+
+    leaper_moves = []
+    other_moves = pincer_moves(board, position) + diagonal_moves(board, position) 
+    
+    adj_squares = [(i,j) for i in range(max(0, position[0]-1), min(num_rows, position[0] + 2)) for j in range(max(0, position[1] - 1), min(num_cols, position[1] + 2))]
+    adj_squares.remove(position)
+
+
+    row = position[0]
+    col = position[1]
+
+    for square in adj_squares:
+        piece = board.board[square[0]][square[1]]
+        if piece - (1 - whose_move) == 6: ## if its a leaper of the opposite color
+            dir = (square[0] - position[0], square[1] - position[1])
+            
+            k = 2
+            new_row = row + k*dir[0]
+            new_col = col + k*dir[1]
+            while new_row >= 0 and new_row < num_rows and new_col >= 0 and new_col < num_cols and board.board[new_row][new_col] % 2 != whose_move:
+                if board.board[new_row][new_col] == EMPTY:
+                    leaper_moves.append((new_row, new_col))
+                k += 1
+                new_row = row + k*dir[0]
+                new_col = col + k*dir[1]
+
+    return leaper_moves + other_moves
+
 
 def withdrawer_moves(board, position):
     return itertools.chain(pincer_moves(board, position), diagonal_moves(board, position)) 
@@ -165,6 +215,8 @@ def king_moves(board, position):
     num_cols = len(board.board[0])
     whose_move = board.whose_move
 
+    all_moves = []
+
     adj_squares = [(i,j) for i in range(max(0, position[0]-1), min(num_rows, position[0] + 2)) for j in range(max(0, position[1] - 1), min(num_cols, position[1] + 2))]
     adj_squares.remove(position)
 
@@ -173,8 +225,10 @@ def king_moves(board, position):
         # whose move = 0 for black and % 2 == EMPTY for black pieces
         # i.e. king can move as long as there isnt a friendly piece there
         if board.board[square[0]][square[1]] % 2 != whose_move:
-            yield square
+#            yield square
+            all_moves.append(square)
 
+    return all_moves
     
 
 def freezer_moves(board, position):
@@ -186,26 +240,34 @@ def diagonal_moves(board, position):
     col = position[1]
     num_rows = len(board.board)
     num_cols = len(board.board[0])
+
+    all_moves = []
     
     k = 1
     while col+k < num_cols and row + k < num_rows and board.board[row + k][col + k] == EMPTY:
-        yield (row + k, col + k)
+#        yield (row + k, col + k)
+        all_moves.append((row + k, col + k))
         k += 1
 
     k = 1
     while col - k >= 0 and row + k < num_rows and board.board[row + k][col - k] == EMPTY:
-        yield (row + k, col - k)
+#        yield (row + k, col - k)
+        all_moves.append((row + k, col - k))
         k += 1
     
     k = 1
     while row - k >= 0 and col - k >= 0 and  board.board[row - k][col - k] == EMPTY:
-        yield (row - k, col - k)
+#       yield (row - k, col - k)
+        all_moves.append((row - k, col - k))
         k += 1
 
     k = 1
     while row - k >= 0 and col + k < num_cols and board.board[row - k][col + k] == EMPTY:
-        yield (row - k, col + k)
+#        yield (row - k, col + k)
+        all_moves.append((row - k, col + k))
         k += 1
+
+    return all_moves
 
 # returns True if there is no adjacent freezer.
 # Flag is to help in the case of a nearby imitator to prevent further rounds of recursion
@@ -216,19 +278,23 @@ def diagonal_moves(board, position):
 def no_freezer_near(board, position, flag=False):
     num_rows = len(board.board)
     num_cols = len(board.board[0])
+    whose_move = board.whose_move
 
-    # doesnt matter if we count the piece centered at position as it cannot
-    # be an immoblizer of the opposite color of whose turn it is
+    if flag: whose_move = 1-whose_move
+
     adj_squares = [(i,j) for i in range(max(0, position[0]-1), min(num_rows, position[0] + 2)) for j in range(max(0, position[1] - 1), min(num_cols, position[1] + 2))]
+    adj_squares.remove(position)
+
+
 
     for square in adj_squares:
         piece = board.board[square[0]][square[1]]
-        if board.whose_move == WHITE:
+        if whose_move == WHITE:
             if piece == 14: return False
 
             # NOTE: checks if there is an imitator acting as a freezer nearby
             elif piece == 8 and not flag and not no_freezer_near(board,square, flag=True): return False 
-        elif board.whose_move == BLACK and piece == 15:
+        else:
             if piece == 15: return False
 
             # NOTE: checks if there is an imitator acting as a freezer nearby
@@ -250,18 +316,26 @@ F L I W K I L C
 ''')
 
 INITIAL = parse('''
-c l i w k i l f
-- - p p p p p p
 - - - - - - - -
 - - - - - - - -
 - - - - - - - -
+- - p - L P - -
+- - - i - - - -
+- - f - - - - -
+- - - - - - - - 
 - - - - - - - -
-P P P P P P P P
-F L I W K I L C
 ''')
 
 initial_board = BC_state(INITIAL)
-initial_board.whose_move = WHITE
+initial_board.whose_move = BLACK
 print(initial_board)
+print(initial_board.board)
 
-for move in valid_moves(initial_board): print(move)
+start = time.time()
+
+for i in range(1):
+    for move in valid_moves(initial_board): 
+       print(move) 
+
+print("done!")
+print("runtime: ", time.time() - start)
