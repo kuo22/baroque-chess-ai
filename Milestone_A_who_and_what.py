@@ -92,10 +92,10 @@ creating the static evaluation and checking for legal moves, and both
 partners will come up with a personality and remarks for the agent.'''
 
 reference1 = '''Wikipedia article on Baroque Chess;
-    URL: https://en.wikipedia.org/wiki/Baroque_chess (accessed Feb. 25, 2018)'''
+    URL: https://en.wikipedia.org/wiki/Baroque_chess (accessed Feb. 25, 2019)'''
 
 reference2 = '''"Minimax Algorithm in Game Theory | Set 5 (Zobrist Hashing)" by Akshay L Aradhya,
-    available online at: https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-5-zobrist-hashing/ (accessed Feb. 27, 2018)'''
+    available online at: https://www.geeksforgeeks.org/minimax-algorithm-in-game-theory-set-5-zobrist-hashing/ (accessed Feb. 27, 2019)'''
 
 our_submission = Who_and_what([kuo, zack], OPTION, title, approach, workload_distribution, [reference1, reference2])
 
