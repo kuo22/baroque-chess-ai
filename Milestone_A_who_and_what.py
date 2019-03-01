@@ -70,7 +70,7 @@ Team:
 
 # Change the following to represent your own information:
 
-kuo = Partner("Kuo", "Hong", "kuo22")
+kuo = Partner("Hong", "Kuo", "kuo22")
 zack = Partner("McNulty", "Zachary", "zmcnulty")
 team = [kuo, zack]
 
