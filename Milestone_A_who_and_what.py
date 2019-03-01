@@ -82,9 +82,9 @@ title = "The Only Remaining Baroque Chess Player"
 approach = '''Our approach will be to first understand the rules
 and strategies for gaining advantage in the game.  We will then
 develop a static evaluation function that checks for the optimal
-move after examining every piece.  And then optimize using alpha-beta
-pruning, Zobrist hashing, and comparison of alternative static
-evaluation functions.  We will make a personality for the agent last.'''
+move after examining every piece.  We will optimize the alpha-beta
+pruning and zobrist hashing afterwards.  The personality for the agent 
+will be created last.'''
 
 workload_distribution = '''Kuo will have primary responsibility for optimizing
 alpha-beta pruning and Zobrist hashing, Zack will have primary responsibility for
