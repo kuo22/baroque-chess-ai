@@ -14,6 +14,7 @@ from BC_state_etc import BC_state
 # For testing!
 from BC_state_etc import parse
 import time
+import traceback
 
 def valid_moves(current_board):
 
@@ -121,7 +122,7 @@ def pincer_moves(board, position):
                 break
 
 
-def pincer_captures(board, position, new_position):
+def pincer_captures(board, position, new_position, make_move_and_revert=True):
     '''
     board = current board before move has been made
     position = old position of the piece on the board (row, col)
@@ -131,7 +132,11 @@ def pincer_captures(board, position, new_position):
         new_board = new board object where given piece has been moved and all captures have been made
     '''
 
-    new_board = make_move(board, position, new_position)
+    if make_move_and_revert:
+        new_board = make_move(board, position, new_position)
+    else:
+        new_board = board
+
     nrow = new_position[0]
     ncol = new_position[1]
     
@@ -146,7 +151,7 @@ def pincer_captures(board, position, new_position):
         except:
             pass
 
-    revert_empty(new_board)
+    if make_move_and_revert: revert_empty(new_board)
     return new_board
 
 
@@ -178,7 +183,7 @@ def coordinator_moves(board, position):
             except:
                 break
 
-def coordinator_captures(board, position, new_position):
+def coordinator_captures(board, position, new_position, make_move_and_revert=True):
     '''
     board = current board before move has been made
     position = old position of the piece on the board (row, col)
@@ -188,7 +193,11 @@ def coordinator_captures(board, position, new_position):
         new_board = new board object where given piece has been moved and all captures have been made
     '''
 
-    new_board = make_move(board, position, new_position)
+    if make_move_and_revert:
+        new_board = make_move(board, position, new_position)
+    else:
+        new_board = board
+
     nrow = new_position[0]
     ncol = new_position[1]
 
@@ -198,17 +207,18 @@ def coordinator_captures(board, position, new_position):
             if piece in [12, 13] and piece % 2 == new_board.whose_move:
                 king_row = i
                 king_col = j
+
+                # if there is an enemy piece at the intersection of coordinator row and king column, capture it
+                if new_board.board[nrow][king_col] % 2 != new_board.whose_move:
+                    new_board.board[nrow][king_col] = EMPTY
+
+                # if there is an enemy piece at the intersection of coordinator row and king column, capture it
+                if new_board.board[king_row][ncol] % 2 != new_board.whose_move:
+                    new_board.board[king_row][ncol] = EMPTY
+
                 break
-
-    # if there is an enemy piece at the intersection of coordinator row and king column, capture it
-    if new_board.board[nrow][king_col] % 2 != new_board.whose_move:
-        new_board.board[nrow][king_col] = EMPTY
-
-    # if there is an enemy piece at the intersection of coordinator row and king column, capture it
-    if new_board.board[king_row][ncol] % 2 != new_board.whose_move:
-        new_board.board[king_row][ncol] = EMPTY
-    
-    revert_empty(new_board)
+                
+    if make_move_and_revert: revert_empty(new_board)
     return new_board
 
 def leaper_moves(board, position):
@@ -250,7 +260,7 @@ def leaper_moves(board, position):
                 # array out of bounds; run off board
                 break
 
-def leaper_captures(board, position, new_position, direction, steps):
+def leaper_captures(board, position, new_position, direction, steps, make_move_and_revert=True):
     '''
     board = current board before move has been made
     position = old position of the piece on the board (row, col)
@@ -259,8 +269,11 @@ def leaper_captures(board, position, new_position, direction, steps):
     returns: 
         new_board = new board object where given piece has been moved and all captures have been made
     '''
+    if make_move_and_revert:
+        new_board = make_move(board, position, new_position)
+    else:
+        new_board = board
 
-    new_board = make_move(board, position, new_position)
     row = position[0]
     col = position[1]
     dr = direction[0] 
@@ -272,10 +285,9 @@ def leaper_captures(board, position, new_position, direction, steps):
         new_board.board[row + k*dr][col + k*dc] = EMPTY
 
 
-    revert_empty(new_board)
+    if make_move_and_revert: revert_empty(new_board)
     return new_board
 
-# TODO FIX ME!
 def imitator_moves(board, position):
     '''
     board = current board before move has been made
@@ -283,46 +295,41 @@ def imitator_moves(board, position):
 
     returns: 
         new_board = new board object where given piece has been moved and all captures have been made
-    
-    # NOTE there are a few special cases to consider for the imitator; mostly, it can move like a leaper when
-    # capturing a leaper
-    num_rows = len(board.board)
-    num_cols = len(board.board[0])
-    whose_move = board.whose_move
-
-    for move in pincer_moves(board, position):
-        yield move
-    for move in diagonal_moves(board, position):
-        yield move
-
-    adj_squares = [(i,j) for i in range(max(0, position[0]-1), min(num_rows, position[0] + 2)) for j in range(max(0, position[1] - 1), min(num_cols, position[1] + 2))]
-    adj_squares.remove(position)
-
+    '''    
     row = position[0]
     col = position[1]
 
-    for square in adj_squares:
-        piece = board.board[square[0]][square[1]]
-        if piece - (1 - whose_move) == 6: ## if its a leaper of the opposite color
-            dir = (square[0] - position[0], square[1] - position[1])
-            
-            k = 2
-            new_row = row + k*dir[0]
-            new_col = col + k*dir[1]
-            while new_row >= 0 and new_row < num_rows and new_col >= 0 and new_col < num_cols and board.board[new_row][new_col] % 2 != whose_move:
-                if board.board[new_row][new_col] == EMPTY:
-                    leaper_moves.append((new_row, new_col))
-                k += 1
-                new_row = row + k*dir[0]
-                new_col = col + k*dir[1]
+    for (dr, dc) in QUEEN_MOVES:
+        k = 1
+        already_jumped = False
+        while row + k*dr >= 0 and col + k*dc >= 0:
+            try:
+                new_square = board.board[row+ k*dr][col + k*dc]
+                new_position = (row + k*dr, col + k*dc)
+                # if the square is empty (and all squares leading up to it by the else clause)
+                # then it is a valid move
+                if new_square == EMPTY:
+                    yield imitator_captures(board, position, new_position, (dr, dc), k)
+                    k += 1
 
-    return leaper_moves + other_moves
-    '''
-    return []
+                # if its the opposite teams king, ONLY a step away, acts as a king and captures it.
+                elif k == 1 and new_square in [12, 13] and new_square % 2 != board.whose_move: 
+                    yield imitator_captures(board, position, new_position, (dr, dc), k)
+                    break
+
+                elif not already_jumped and new_square in [6,7] and new_square % 2 != board.whose_move:
+                    # can jump over it        
+                    k += 2
+                    already_jumped = True
+                else:
+                    # square has an enemy or friendly piece. Cannot jumpy over these
+                    break
+            except:
+                break
 
 
-# TODO IMPLEMENT ME!
-def imitator_captures(board, position, new_position):
+
+def imitator_captures(board, position, new_position, direction, steps):
     '''
     board = current board before move has been made
     position = old position of the piece on the board (row, col)
@@ -330,11 +337,60 @@ def imitator_captures(board, position, new_position):
 
     returns: 
         new_board = new board object where given piece has been moved and all captures have been made
+    
     '''
+    row = position[0]
+    col = position[1]
+    nrow = new_position[0]
+    ncol = new_position[1]
+    dr = direction[0]
+    dc = direction[1]
 
+    # simply making the move will take care of the king capture if necessary
     new_board = make_move(board, position, new_position)
-    row = new_position[0]
-    col = new_position[1]
+
+    # take care of leaper captures
+    # in this case, since the only way to jump over a piece is if we noticed it was a leaper,
+    # we dont have to check any further conditions
+    leaper_captures(new_board, position, new_position, direction, steps, make_move_and_revert=False)
+
+    # take care of withdrawer captures: only captures withdrawer
+    try:
+        if new_board.board[row - dr][col - dc] in [10, 11] and new_board.board[row - dr][col - dc] % 2 != board.whose_move:
+            new_board.board[row - dr][col - dc] = EMPTY
+    except:
+        pass
+
+    # take care of pincher captures
+    for (dr, dc) in ROOK_MOVES:
+        # dr is change in row
+        # dc is change in column
+        try:
+            # if theres a matching colored piece 2 steps away and an enemy one step away in this direction
+            # also, the piece being captured must be a pincher
+            if new_board.board[nrow][ncol] % 2 == new_board.board[nrow + 2*dr][ncol + 2*dc] % 2 and new_board.board[nrow][ncol] % 2 != new_board.board[nrow + dr][ncol + dc] % 2 and new_board.board[nrow + dr][ncol + dc] in [2,3]:
+                new_board.board[nrow + dr][ncol + dc] = EMPTY
+        except:
+            pass
+
+
+    # take care of coordinator captures
+    for i, row in enumerate(new_board.board):
+        for j, piece in enumerate(row):
+            if piece in [12, 13] and piece % 2 == new_board.whose_move:
+                # find kings location
+                king_row = i
+                king_col = j
+
+                # if there is an enemy piece at the intersection of coordinator row and king column, capture it
+                if new_board.board[nrow][king_col] in [4,5] and new_board.board[nrow][king_col] % 2 != new_board.whose_move:
+                    new_board.board[nrow][king_col] = EMPTY
+
+                # if there is an enemy piece at the intersection of coordinator row and king column, capture it
+                if new_board.board[king_row][ncol] in [4,5] and new_board.board[king_row][ncol] % 2 != new_board.whose_move:
+                    new_board.board[king_row][ncol] = EMPTY
+                break
+
 
     revert_empty(new_board)
     return new_board
@@ -366,7 +422,7 @@ def withdrawer_moves(board, position):
             except:
                 break
 
-def withdrawer_captures(board, position, new_position, direction):
+def withdrawer_captures(board, position, new_position, direction, make_move_and_revert=True):
     '''
     board = current board before move has been made
     position = old position of the piece on the board (row, col)
@@ -377,7 +433,11 @@ def withdrawer_captures(board, position, new_position, direction):
         new_board = new board object where given piece has been moved and all captures have been made
     '''
 
-    new_board = make_move(board, position, new_position)
+    if make_move_and_revert:
+        new_board = make_move(board, position, new_position)
+    else:
+        new_board = board
+
     row = position[0]
     col = position[1]
 
@@ -388,7 +448,7 @@ def withdrawer_captures(board, position, new_position, direction):
         # ran off of board
         pass
 
-    revert_empty(new_board)
+    if make_move_and_revert: revert_empty(new_board)
     return new_board
 
     
@@ -408,11 +468,11 @@ def king_moves(board, position):
         # whose move = 1 for white and % 2 == 1 for white pieces
         # whose move = 0 for black and % 2 == EMPTY for black pieces
         # i.e. king can move as long as there isnt a friendly piece there
-        if row + dr >= 0 and col + d  >= 0 and board.board[row + dr][col + dc] % 2 != whose_move:
+        if row + dr >= 0 and col + dc  >= 0 and board.board[row + dr][col + dc] % 2 != whose_move:
             yield king_captures(board, position, (row + dr, col + dc))
 
 
-def king_captures(board, position, new_position):
+def king_captures(board, position, new_position, make_move_and_revert=True):
     '''
     board = current board before move has been made
     position = old position of the piece on the board (row, col)
@@ -423,8 +483,13 @@ def king_captures(board, position, new_position):
     '''
     # since the king captures by occupying the square, all we have to do is move the king
     # to his new square.
-    new_board = make_move(board, position, new_position)
-    revert_empty(new_board) 
+
+    if make_move_and_revert:
+        new_board = make_move(board, position, new_position)
+    else:
+        new_board = board
+
+    if make_move_and_revert: revert_empty(new_board) 
     return new_board
     
 def freezer_moves(board, position):
@@ -503,7 +568,6 @@ def no_freezer_near(board, position, flag=False):
     return True
 
 # ===================================== TESTING CODE
-
 INITIAL = parse('''
 c l i w k i l f
 p p p p p p p p
@@ -515,19 +579,30 @@ P P P P P P P P
 F L I W K I L C
 ''')
 
+
+
 INITIAL = parse('''
 - - - - - - - -
 - - - - - - - -
 - - - - - - - -
-- - P - L P - -
-- - - P - - - -
-- - f - - - - -
-- - - - - - - - 
+- w I - - - - -
+- - - - - - - -
+- - - - - - - -
+- - - - - - - -
 - - - - - - - -
 ''')
 
+# NOTE: Testing notes
+# Pincer
+#   Pincer can capture single piece in direction of motion
+#   Pincer can capture multiple pieces
+#   Pincer cannot move through other pieces
+#   Pincer does not capture teamates
+#   Pincer does not capture without a teammate on the opposite side of piece
+
 initial_board = BC_state(INITIAL)
-initial_board.whose_move = BLACK
+initial_board.whose_move = WHITE
+print("INTIAL BOARD \n\n")
 print(initial_board)
 #print(initial_board.board)
 
