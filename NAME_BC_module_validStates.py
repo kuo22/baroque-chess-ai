@@ -178,7 +178,6 @@ def coordinator_moves(board, position):
             except:
                 break
 
-# TODO IMPLEMENT
 def coordinator_captures(board, position, new_position):
     '''
     board = current board before move has been made
@@ -190,10 +189,27 @@ def coordinator_captures(board, position, new_position):
     '''
 
     new_board = make_move(board, position, new_position)
-    row = position[0]
-    col = position[1]
+    nrow = new_position[0]
+    ncol = new_position[1]
+
+    # find the kings location
+    for i, row in enumerate(new_board.board):
+        for j, piece in enumerate(row):
+            if piece in [12, 13] and piece % 2 == new_board.whose_move:
+                king_row = i
+                king_col = j
+                break
+
+    # if there is an enemy piece at the intersection of coordinator row and king column, capture it
+    if new_board.board[nrow][king_col] % 2 != new_board.whose_move:
+        new_board.board[nrow][king_col] = EMPTY
+
+    # if there is an enemy piece at the intersection of coordinator row and king column, capture it
+    if new_board.board[king_row][ncol] % 2 != new_board.whose_move:
+        new_board.board[king_row][ncol] = EMPTY
     
     revert_empty(new_board)
+    return new_board
 
 def leaper_moves(board, position):
     '''
