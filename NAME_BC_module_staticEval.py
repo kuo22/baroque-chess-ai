@@ -37,7 +37,7 @@ def static_eval(board):
             #                    your score is higher if you freeze higher valued pieces
             if piece == 14: # black freezer
                 white_score += weights['freezing'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 1 ])
-            elif piee == 15:
+            elif piece == 15:
                 black_score += weights['freezing'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 0 ])
 
 

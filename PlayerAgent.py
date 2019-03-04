@@ -1,4 +1,6 @@
 import BC_state_etc as BC
+import NAME_BC_module_validStates as vs
+import NAME_BC_module_staticEval as se
 import time
 
 BLACK = 0
@@ -8,6 +10,7 @@ start_time = 0
 def makeMove(currentState, currentRemark, timelimit=10000):
     global start_time
     start_time = time.perf_counter()
+    timelimit //= 1000
 
     # Compute the new state for a move.
     # This is a placeholder that just copies the current state.
@@ -22,6 +25,7 @@ def makeMove(currentState, currentRemark, timelimit=10000):
     while current_max_ply < 20:
         last_best = best_state
         best_state = alpha_beta(newState, 0, current_max_ply, newState.whose_move, float("-inf"), float("inf"), timelimit)
+        print('sup:  ' + str(type(best_state)))
         current_max_ply += 1
         end_time = time.perf_counter()
         if end_time - start_time > timelimit * 0.90:
@@ -41,13 +45,14 @@ def makeMove(currentState, currentRemark, timelimit=10000):
                 # Old cell is empty or has opponent's piece -> New cell has piece on my side, then this is the new position
                 if newState.board[i][j] % 2 == 0 and best_state.board[i][j] == 1:
                     position_B = (i, j)
-            if newState.whose_move == BLACK:
+            else:
                 if (newState.board[i][j] % 2 == 0 and newState.board[i][j] != 0) and best_state.board[i][j] == 0:
                     position_A = (i, j)
                 if (newState.board[i][j] == 0 or newState.board[i][j] % 2 == 1) and (best_state.board[i][j] != 0 and best_state.board[i][j] % 2 == 0):
                     position_B = (i, j)
     
     move = (position_A, position_B)
+    print('yolo' + str(move))
     # Make up a new remark
     newRemark = "I'll think harder in some future game. Here's my move"
 
@@ -55,18 +60,18 @@ def makeMove(currentState, currentRemark, timelimit=10000):
 
 def alpha_beta(current_state, current_depth, max_ply, player, alpha, beta, time_lim):
     global start_time
-    current_time = time.perf_counter
+    current_time = time.perf_counter()
     if current_time - start_time > time_lim * 0.9:
         return current_state
 
-    moves = valid_moves(current_state)
+    moves = vs.valid_moves(current_state)
     if not moves or current_depth == max_ply:
         return current_state
 
     optimal_state = current_state
     for move in moves:
         state = alpha_beta(move, current_depth + 1, max_ply, 1 - player, alpha, beta, time_lim)
-        move_value = static_eval(move) # to be changed depending on implementation of static eval
+        move_value = se.static_eval(move) # to be changed depending on implementation of static eval
         if player == WHITE:
             if move_value > alpha:
                 alpha = move_value
@@ -88,10 +93,10 @@ def alpha_beta(current_state, current_depth, max_ply, player, alpha, beta, time_
     return optimal_state
 
 def nickname():
-    return "Newman"
+    return "Ash Ketchum"
 
 def introduce():
-    return "I'm Newman Barry, a newbie Baroque Chess agent."
+    return "I'm a Pokemon failure."
 
 def prepare(player2Nickname):
     pass
