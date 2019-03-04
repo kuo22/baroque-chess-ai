@@ -35,37 +35,37 @@ def valid_moves(current_board):
             if square != EMPTY and square % 2 == whose_move and no_freezer_near(board, position):
                 # pincer
                 if square in [2,3]:
-                    print("pincer moves (start, end)")
+                    # print("pincer moves (start, end)")
                     for move in pincer_moves(board, position): yield move
 
                 # coordinator
                 elif square in [4,5]:
-                    print("coordinator moves (start, end)")
+                    # print("coordinator moves (start, end)")
                     for move in coordinator_moves(board, position): yield move
                 
                 # leaper
                 elif square in [6,7]:
-                    print("leaper moves (start, end)")
+                    # print("leaper moves (start, end)")
                     for move in leaper_moves(board, position): yield move
 
                 # imitator
                 elif square in [8,9]:
-                    print("imitator moves (start, end)")
+                    # print("imitator moves (start, end)")
                     for move in imitator_moves(board, position): yield move
 
                 # withdrawer
                 elif square in [10,11]:
-                    print("withdrawer moves (start, end)")
+                    # print("withdrawer moves (start, end)")
                     for move in withdrawer_moves(board, position): yield move
 
                 # king
                 elif square in [12,13]:
-                    print("king moves (start, end)")
+                    # print("king moves (start, end)")
                     for move in king_moves(board, position): yield move
 
                 # freezer
                 else:
-                    print("freezer Moves (start, end)")
+                    # print("freezer Moves (start, end)")
                     for move in freezer_moves(board, position): yield move
 
 # generate a new board object by moving the piece at 'position' to 'new_position'
@@ -112,7 +112,7 @@ def pincer_moves(board, position):
                 if board.board[row + k*dr][col + k*dc] == EMPTY:
                     
                     new_position = (row + k*dr, col + k*dc)
-                    print(new_position)
+                    # print(new_position)
                     yield pincer_captures(board, position, new_position)
                     k += 1
                 else:
@@ -468,9 +468,11 @@ def king_moves(board, position):
         # whose move = 1 for white and % 2 == 1 for white pieces
         # whose move = 0 for black and % 2 == EMPTY for black pieces
         # i.e. king can move as long as there isnt a friendly piece there
-        if row + dr >= 0 and col + dc  >= 0 and board.board[row + dr][col + dc] % 2 != whose_move:
-            yield king_captures(board, position, (row + dr, col + dc))
-
+        try:
+            if row + dr >= 0 and col + dc >= 0 and board.board[row + dr][col + dc] % 2 != whose_move:
+                yield king_captures(board, position, (row + dr, col + dc))
+        except:
+            pass
 
 def king_captures(board, position, new_position, make_move_and_revert=True):
     '''
@@ -568,29 +570,29 @@ def no_freezer_near(board, position, flag=False):
     return True
 
 # ===================================== TESTING CODE
-INITIAL = parse('''
-c l i w k i l f
-p p p p p p p p
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-P P P P P P P P
-F L I W K I L C
-''')
+# INITIAL = parse('''
+# c l i w k i l f
+# p p p p p p p p
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# P P P P P P P P
+# F L I W K I L C
+# ''')
 
 
 
-INITIAL = parse('''
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-- w I - - - - -
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-''')
+# INITIAL = parse('''
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - w I - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# ''')
 
 # NOTE: Testing notes
 # Pincer
@@ -600,17 +602,17 @@ INITIAL = parse('''
 #   Pincer does not capture teamates
 #   Pincer does not capture without a teammate on the opposite side of piece
 
-initial_board = BC_state(INITIAL)
-initial_board.whose_move = WHITE
-print("INTIAL BOARD \n\n")
-print(initial_board)
-#print(initial_board.board)
+# initial_board = BC_state(INITIAL)
+# initial_board.whose_move = WHITE
+# print("INTIAL BOARD \n\n")
+# print(initial_board)
+# #print(initial_board.board)
 
-start = time.time()
+# start = time.time()
 
-for i in range(1):
-    for move in valid_moves(initial_board): 
-       print(move) 
+# for i in range(1):
+#     for move in valid_moves(initial_board): 
+#        print(move) 
 
-print("done!")
-print("runtime: ", time.time() - start)
+# print("done!")
+# print("runtime: ", time.time() - start)
