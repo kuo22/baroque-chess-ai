@@ -5,7 +5,7 @@ BLACK = 0
 WHITE = 1
 start_time = 0
 
-def makeMove(currentState, currentRemark, timelimit):
+def makeMove(currentState, currentRemark, timelimit=10000):
     global start_time
     start_time = time.perf_counter()
 
