@@ -1,6 +1,7 @@
 import BC_state_etc as BC
 import NAME_BC_module_validStates as vs
 import NAME_BC_module_staticEval as se
+import zobrist_hashing as zh
 import time
 
 BLACK = 0
@@ -74,7 +75,11 @@ def alpha_beta(current_state, current_depth, max_ply, player, alpha, beta, time_
     optimal_state = current_state
     for move in moves:
         state = alpha_beta(move, current_depth + 1, max_ply, 1 - player, alpha, beta, time_lim)
-        move_value = se.static_eval(move) # to be changed depending on implementation of static eval
+        move_value = 0
+        if zh.hash_state(state) in zh.zob_table:
+            move_value = zh.zob_table(zh.hash_state(state))
+        else:
+            move_value = se.static_eval(state)
         if player == WHITE:
             if move_value > alpha:
                 alpha = move_value
@@ -102,6 +107,5 @@ def introduce():
     return "I'm a Pokemon failure."
 
 def prepare(player2Nickname):
-    pass
-
-
+    zh.init_table()
+    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
