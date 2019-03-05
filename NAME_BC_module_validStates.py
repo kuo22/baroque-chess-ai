@@ -9,6 +9,9 @@ EMPTY = 0.5
 QUEEN_MOVES = [(1,0), (0,1), (-1,0), (0,-1), (1,1), (-1,-1), (1, -1), (-1,1)]
 ROOK_MOVES = [(1,0), (0,1), (-1,0), (0,-1)]
 
+NUM_ROWS = 0
+NUM_COLS = 0
+
 from BC_state_etc import BC_state
 
 # For testing!
@@ -22,12 +25,19 @@ def valid_moves(current_board):
     # This allow for convenient checks using PIECE % 2 == whose_move to check that a given piece matches
     # the color of the player whose turn it is (or use != to check that the color is opposite) rather than
     # breaking down into a bunch of if WHITE else if BLACK statements.
+    global NUM_COLS, NUM_ROWS
+    NUM_ROWS = len(current_board.board)
+    NUM_COLS = len(current_board.board[0])
+
     board = BC_state(current_board.board, current_board.whose_move)
     for i, row in enumerate(board.board):
         for j, square in enumerate(row):
             if square == 0: board.board[i][j] = EMPTY
 
     whose_move = board.whose_move
+    
+    
+
 
     for i, row in enumerate(board.board):
         for j, square in enumerate(row):
@@ -104,21 +114,24 @@ def pincer_moves(board, position):
 
     for (dr, dc) in ROOK_MOVES:
         k = 1
+        new_row = row + k*dr
+        new_col = col + k*dc
         # had to add this condition because python allows negative indexing (i.e. list[-1])
-        while row + k*dr >= 0 and col + k*dc >= 0:
-            try:
-                # if the square is empty (and all squares leading up to it by the else clause)
-                # then it is a valid move
-                if board.board[row + k*dr][col + k*dc] == EMPTY:
-                    
-                    new_position = (row + k*dr, col + k*dc)
-                    # print(new_position)
-                    yield pincer_captures(board, position, new_position)
-                    k += 1
-                else:
-                    # found an enemy or friendly piece that it cannot jump over/move past
-                    break
-            except:
+        while new_row >= 0 and new_col >= 0 and new_row < NUM_ROWS and new_col < NUM_COLS:
+            # if the square is empty (and all squares leading up to it by the else clause)
+            # then it is a valid move
+            if board.board[new_row][new_col] == EMPTY:
+                
+                new_position = (new_row, new_col)
+                # print(new_position)
+                
+                yield pincer_captures(board, position, new_position)
+
+                k+=1
+                new_row = row + k*dr
+                new_col = col + k*dc
+            else:
+                # found an enemy or friendly piece that it cannot jump over/move past
                 break
 
 
@@ -169,18 +182,19 @@ def coordinator_moves(board, position):
 
     for (dr, dc) in QUEEN_MOVES:
         k = 1
-        while row + k*dr >= 0 and col + k*dc >= 0:
-            try:
-                # if the square is empty (and all squares leading up to it by the else clause)
-                # then it is a valid move
-                if board.board[row + k*dr][col + k*dc] == EMPTY:
-                    new_position = (row + k*dr, col + k*dc)
-                    yield coordinator_captures(board, position, new_position)
-                    k += 1
-                else:
-                    # square has an enemy or friendly piece. Cannot jumpy over these
-                    break
-            except:
+        new_row = row + k*dr
+        new_col = col + k*dc
+        while new_row >= 0 and new_col >= 0 and new_row < NUM_ROWS and new_col < NUM_COLS:
+            # if the square is empty (and all squares leading up to it by the else clause)
+            # then it is a valid move
+            if board.board[row + k*dr][col + k*dc] == EMPTY:
+                new_position = (row + k*dr, col + k*dc)
+                yield coordinator_captures(board, position, new_position)
+                k += 1
+                new_row = row + k*dr
+                new_col = col + k*dc
+            else:
+                # square has an enemy or friendly piece. Cannot jumpy over these
                 break
 
 def coordinator_captures(board, position, new_position, make_move_and_revert=True):
@@ -236,29 +250,30 @@ def leaper_moves(board, position):
     for (dr, dc) in QUEEN_MOVES:
         k = 1
         enemy_count = 0
-        while row + k*dr >= 0 and col + k*dc >= 0:
-            try:
-                # can hop over at most one enemy
-                if enemy_count > 1:
-                    break
-
-                # empty square; possible move
-                elif board.board[row + k*dr][col + k*dc] == EMPTY:
-                    new_position = (row + k*dr, col + k*dc)
-                    yield leaper_captures(board, position, new_position, (dr, dc), k)
-
-                # cannot jump over pieces on the same team
-                elif board.board[row + k*dr][col + k*dc] % 2 == whose_move:
-                    break
-
-                # square contains an enemy piece
-                else:
-                    enemy_count += 1
-
-                k += 1
-            except:
-                # array out of bounds; run off board
+        new_row = row + k*dr
+        new_col = col + k*dc
+        while new_row >= 0 and new_col >= 0 and new_row < NUM_ROWS and new_col < NUM_COLS:
+            # can hop over at most one enemy
+            if enemy_count > 1:
                 break
+
+            # empty square; possible move
+            elif board.board[row + k*dr][col + k*dc] == EMPTY:
+                new_position = (row + k*dr, col + k*dc)
+                yield leaper_captures(board, position, new_position, (dr, dc), k)
+
+            # cannot jump over pieces on the same team
+            elif board.board[row + k*dr][col + k*dc] % 2 == whose_move:
+                break
+
+            # square contains an enemy piece
+            else:
+                enemy_count += 1
+
+            k += 1
+            new_row = new_row + k*dr
+            new_col = new_col + k*dc
+
 
 def leaper_captures(board, position, new_position, direction, steps, make_move_and_revert=True):
     '''
@@ -408,19 +423,20 @@ def withdrawer_moves(board, position):
 
     for (dr, dc) in QUEEN_MOVES:
         k = 1
-        while row + k*dr >= 0 and col + k*dc >= 0:
-            try:
+        new_row = row + k*dr
+        new_col = col + k*dc
+        while new_row >= 0 and new_col >= 0 and new_row < NUM_ROWS and new_col < NUM_COLS:
                 # if the square is empty (and all squares leading up to it by the else clause)
                 # then it is a valid move
-                if board.board[row + k*dr][col + k*dc] == EMPTY:
-                    new_position = (row + k*dr, col + k*dc)
+                if board.board[new_row][new_col] == EMPTY:
+                    new_position = (new_row, new_col)
                     yield withdrawer_captures(board, position, new_position, (dr, dc))
                     k += 1
+                    new_row = row + k*dr
+                    new_col = col + k*dc
                 else:
                     # square has an enemy or friendly piece. Cannot jumpy over these
                     break
-            except:
-                break
 
 def withdrawer_captures(board, position, new_position, direction, make_move_and_revert=True):
     '''
@@ -507,19 +523,20 @@ def freezer_moves(board, position):
 
     for (dr, dc) in QUEEN_MOVES:
         k = 1
-        while row + k*dr >= 0 and col + k*dc >= 0:
-            try:
+        new_row = row + k*dr
+        new_col = col + k*dc
+        while new_row >= 0 and new_col >= 0 and new_row < NUM_ROWS and new_col < NUM_COLS:
                 # if the square is empty (and all squares leading up to it by the else clause)
                 # then it is a valid move
                 if board.board[row + k*dr][col + k*dc] == EMPTY:
                     new_position = (row + k*dr, col + k*dc)
                     yield freezer_captures(board, position, new_position)
                     k += 1
+                    new_row = row + k*dr
+                    new_col = col + k*dc
                 else:
                     # square has an enemy or friendly piece. Cannot jump over these
                     break
-            except:
-                break
 
 def freezer_captures(board, position, new_position):
     '''
@@ -545,13 +562,11 @@ def freezer_captures(board, position, new_position):
 # level as imitators CANNOT imitate themselves, so I stop that from happening with one flag
 # NOTE: assumes immitators and freezers do NOT cancel out
 def no_freezer_near(board, position, flag=False):
-    num_rows = len(board.board)
-    num_cols = len(board.board[0])
     whose_move = board.whose_move
 
     if flag: whose_move = 1-whose_move
 
-    adj_squares = [(i,j) for i in range(max(0, position[0]-1), min(num_rows, position[0] + 2)) for j in range(max(0, position[1] - 1), min(num_cols, position[1] + 2))]
+    adj_squares = [(i,j) for i in range(max(0, position[0]-1), min(NUM_ROWS, position[0] + 2)) for j in range(max(0, position[1] - 1), min(NUM_COLS, position[1] + 2))]
     adj_squares.remove(position)
 
     for square in adj_squares:
@@ -570,16 +585,16 @@ def no_freezer_near(board, position, flag=False):
     return True
 
 # ===================================== TESTING CODE
-# INITIAL = parse('''
-# c l i w k i l f
-# p p p p p p p p
-# - - - - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# P P P P P P P P
-# F L I W K I L C
-# ''')
+INITIAL = parse('''
+c l i w k i l f
+p p p p p p p p
+- - - - - - - -
+- - - - - - - -
+- - - - - - - -
+- - - - - - - -
+P P P P P P P P
+F L I W K I L C
+''')
 
 
 
@@ -600,19 +615,19 @@ def no_freezer_near(board, position, flag=False):
 #   Pincer can capture multiple pieces
 #   Pincer cannot move through other pieces
 #   Pincer does not capture teamates
-#   Pincer does not capture without a teammate on the opposite side of piece
+#  Pincer does not capture without a teammate on the opposite side of piece
 
-# initial_board = BC_state(INITIAL)
-# initial_board.whose_move = WHITE
-# print("INTIAL BOARD \n\n")
-# print(initial_board)
-# #print(initial_board.board)
+initial_board = BC_state(INITIAL)
+initial_board.whose_move = WHITE
+print("INTIAL BOARD \n\n")
+print(initial_board)
+print(initial_board.board)
 
-# start = time.time()
+start = time.time()
 
-# for i in range(1):
-#     for move in valid_moves(initial_board): 
-#        print(move) 
+for i in range(1):
+    for move in valid_moves(initial_board): 
+        print(move) 
 
-# print("done!")
-# print("runtime: ", time.time() - start)
+print("done!")
+print("runtime: ", time.time() - start)
