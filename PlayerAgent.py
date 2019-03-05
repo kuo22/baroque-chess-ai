@@ -14,10 +14,10 @@ def makeMove(currentState, currentRemark, timelimit=10000):
 
     # Compute the new state for a move.
     # This is a placeholder that just copies the current state.
-    newState = BC.BC_state(currentState.board)
+    newState = BC.BC_state(currentState.board, currentState.whose_move)
 
     # Fix up whose turn it will be.
-    newState.whose_move = 1 - currentState.whose_move
+    # newState.whose_move = currentState.whose_move
 
     best_state = None
     last_best = None
@@ -25,7 +25,6 @@ def makeMove(currentState, currentRemark, timelimit=10000):
     while current_max_ply < 20:
         last_best = best_state
         best_state = alpha_beta(newState, 0, current_max_ply, newState.whose_move, float("-inf"), float("inf"), timelimit)
-        print('sup:  ' + str(type(best_state)))
         current_max_ply += 1
         end_time = time.perf_counter()
         if end_time - start_time > timelimit * 0.90:
@@ -43,7 +42,7 @@ def makeMove(currentState, currentRemark, timelimit=10000):
                 if newState.board[i][j] % 2 == 1 and best_state.board[i][j] == 0:
                     position_A = (i, j)
                 # Old cell is empty or has opponent's piece -> New cell has piece on my side, then this is the new position
-                if newState.board[i][j] % 2 == 0 and best_state.board[i][j] == 1:
+                if newState.board[i][j] % 2 == 0 and best_state.board[i][j] % 2 == 1:
                     position_B = (i, j)
             else:
                 if (newState.board[i][j] % 2 == 0 and newState.board[i][j] != 0) and best_state.board[i][j] == 0:
@@ -52,7 +51,11 @@ def makeMove(currentState, currentRemark, timelimit=10000):
                     position_B = (i, j)
     
     move = (position_A, position_B)
-    print('yolo' + str(move))
+    print('the coordinates: ' + str(move))
+
+    # Change who's turn
+    best_state.whose_move = 1 - currentState.whose_move
+
     # Make up a new remark
     newRemark = "I'll think harder in some future game. Here's my move"
 
