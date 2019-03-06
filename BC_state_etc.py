@@ -92,6 +92,17 @@ P P P P P P P P
 F L I W K I L C
 ''')
 
+# INITIAL = parse('''
+# - - - k - - - -
+# - - - - - - f -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - F -
+# - - - - - - - -
+# - - - - K - - -
+# ''')
+
 class BC_state:
     def __init__(self, old_board=INITIAL, whose_move=WHITE):
         new_board = [r[:] for r in old_board]  # Deeply copy the board.

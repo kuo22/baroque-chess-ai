@@ -1,7 +1,7 @@
 import BC_state_etc as BC
-import NAME_BC_module_validStates as vs
-import NAME_BC_module_staticEval as se
-import zobrist_hashing as zh
+import terminator_BC_module_validStates as vs
+import terminator_BC_module_staticEval as se
+import terminator_BC_module_zobrist_hashing as zh
 import time
 
 BLACK = 0
@@ -11,7 +11,6 @@ start_time = 0
 def makeMove(currentState, currentRemark, timelimit=10000):
     global start_time
     start_time = time.perf_counter()
-    timelimit //= 1000
 
     # Compute the new state for a move.
     # This is a placeholder that just copies the current state.
@@ -23,7 +22,7 @@ def makeMove(currentState, currentRemark, timelimit=10000):
     best_state = None
     last_best = None
     current_max_ply = 1
-    while current_max_ply < 20:
+    while current_max_ply < 10:
         last_best = best_state
         best_state = alpha_beta(newState, 0, current_max_ply, newState.whose_move, float("-inf"), float("inf"), timelimit)
         current_max_ply += 1
@@ -106,10 +105,10 @@ def alpha_beta(current_state, current_depth, max_ply, player, alpha, beta, time_
     return optimal_state
 
 def nickname():
-    return "Ash Ketchum"
+    return "Terminator"
 
 def introduce():
-    return "I'm a Pokemon failure."
+    return "I come from the future where people actually play Baroque Chess.  My sole purpose is to destroy it so no one has to play this abomination."
 
 def prepare(player2Nickname):
     zh.init_table()
