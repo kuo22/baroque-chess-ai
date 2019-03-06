@@ -62,6 +62,7 @@ def makeMove(currentState, currentRemark, timelimit=10000):
 
     return [[move, best_state], newRemark]
 
+# Game search tree algorithm
 def alpha_beta(current_state, current_depth, max_ply, player, alpha, beta, time_lim):
     global start_time
     current_time = time.perf_counter()
@@ -73,13 +74,17 @@ def alpha_beta(current_state, current_depth, max_ply, player, alpha, beta, time_
         return current_state
 
     optimal_state = current_state
+    # For each valid move, find the best move in the next ply
     for move in moves:
         state = alpha_beta(move, current_depth + 1, max_ply, 1 - player, alpha, beta, time_lim)
         move_value = 0
-        if zh.hash_state(state) in zh.zob_table:
-            move_value = zh.zob_table(zh.hash_state(state))
+        hash_value = zh.hash_state(state)
+        # Check if state has been hashed already.  Add to the hash table if not with its corresponding static evaluation value.
+        if hash_value in zh.zob_table:
+            move_value = zh.zob_table[hash_value]
         else:
             move_value = se.static_eval(state)
+            zh.zob_table[hash_value] = move_value
         if player == WHITE:
             if move_value > alpha:
                 alpha = move_value
