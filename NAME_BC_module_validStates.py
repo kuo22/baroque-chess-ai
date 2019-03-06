@@ -255,8 +255,8 @@ def leaper_moves(board, position):
                 break
 
             # empty square; possible move
-            elif board.board[row + k*dr][col + k*dc] == EMPTY:
-                new_position = (row + k*dr, col + k*dc)
+            elif board.board[new_row][new_col] == EMPTY:
+                new_position = (new_row, new_col)
                 yield leaper_captures(board, position, new_position, (dr, dc), k)
 
             # cannot jump over pieces on the same team
@@ -268,8 +268,8 @@ def leaper_moves(board, position):
                 enemy_count += 1
 
             k += 1
-            new_row = new_row + k*dr
-            new_col = new_col + k*dc
+            new_row = row + k*dr
+            new_col = col + k*dc
 
 
 def leaper_captures(board, position, new_position, direction, steps, make_move_and_revert=True):
@@ -655,13 +655,13 @@ INITIAL = parse('''
 
 INITIAL = parse('''
 - - - - - - - -
-- p - - C - - -
+- - - - - - l -
 - - - - - - - -
 - - - - - - - -
 - - - - - - - -
-- K - - - p - -
-f - - - - - - -
-F - - - - - - -
+- - - - - - - -
+- - - - - - L -
+- - - - - - - -
 ''')
 
 
