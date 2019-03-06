@@ -316,35 +316,44 @@ def imitator_moves(board, position):
 
     for (dr, dc) in QUEEN_MOVES:
         k = 1
+        new_row = row + k*dr
+        new_col = col + k*dc
         already_jumped = False
-        while row + k*dr >= 0 and col + k*dc >= 0:
-            try:
-                new_square = board.board[row+ k*dr][col + k*dc]
-                new_position = (row + k*dr, col + k*dc)
-                # if the square is empty (and all squares leading up to it by the else clause)
-                # then it is a valid move
-                if new_square == EMPTY:
-                    yield imitator_captures(board, position, new_position, (dr, dc), k)
-                    k += 1
+        capture_as = 'other'
 
-                # if its the opposite teams king, ONLY a step away, acts as a king and captures it.
-                elif k == 1 and new_square in [12, 13] and new_square % 2 != board.whose_move: 
-                    yield imitator_captures(board, position, new_position, (dr, dc), k)
-                    break
+        while new_col >= 0 and new_row >= 0 and new_row < NUM_ROWS and new_col < NUM_COLS:
+            new_square = board.board[new_row][new_col]
+            new_position = (new_row, new_col)
 
-                elif not already_jumped and new_square in [6,7] and new_square % 2 != board.whose_move:
-                    # can jump over it        
-                    k += 2
-                    already_jumped = True
-                else:
-                    # square has an enemy or friendly piece. Cannot jumpy over these
-                    break
-            except:
+            # if the square is empty (and all squares leading up to it by the else clause)
+            # then it is a valid move
+            # NOTE: this could be capturing as either a leaper OR an 'other' depending on capture_as
+            if new_square == EMPTY:
+                for move in imitator_captures(board, position, new_position, (dr, dc), k, capture_as):
+                    yield move
+                k += 1
+
+            # if its the opposite teams king, ONLY a step away, acts as a king and captures it.
+            elif k == 1 and new_square in [12, 13] and new_square % 2 != board.whose_move: 
+                for move in imitator_captures(board, position, new_position, (dr, dc), k, capture_as='king'):
+                    yield move
                 break
 
+            elif not already_jumped and new_square in [6,7] and new_square % 2 != board.whose_move:
+                # can jump over it        
+                k += 1
+                capture_as = 'leaper'
+                already_jumped = True
+            else:
+                # square has an enemy or friendly piece. Cannot jumpy over these
+                break
+
+            new_row = row + k*dr
+            new_col = col + k*dc
 
 
-def imitator_captures(board, position, new_position, direction, steps):
+
+def imitator_captures(board, position, new_position, direction, steps, capture_as):
     '''
     board = current board before move has been made
     position = old position of the piece on the board (row, col)
@@ -360,55 +369,101 @@ def imitator_captures(board, position, new_position, direction, steps):
     ncol = new_position[1]
     dr = direction[0]
     dc = direction[1]
+    any_captures_made = False # in the case no captures are made, we still want to return a board.
 
     # simply making the move will take care of the king capture if necessary
-    new_board = make_move(board, position, new_position)
+    if capture_as == 'king':
+        new_board = make_move(board, position, new_position)
+        revert_empty(new_board)
+        yield new_board
+        return # exit the generator; already capturing as a king cannot capture as another piece
 
     # take care of leaper captures
     # in this case, since the only way to jump over a piece is if we noticed it was a leaper,
     # we dont have to check any further conditions
-    leaper_captures(new_board, position, new_position, direction, steps, make_move_and_revert=False)
+    elif capture_as == 'leaper':
+        new_board = make_move(board, position, new_position)
+        leaper_captures(new_board, position, new_position, direction, steps, make_move_and_revert=False)
+        revert_empty(new_board)
+        yield new_board
+        return # exit the generator and stop iterating
 
     # take care of withdrawer captures: only captures withdrawer
-    try:
-        if new_board.board[row - dr][col - dc] in [10, 11] and new_board.board[row - dr][col - dc] % 2 != board.whose_move:
-            new_board.board[row - dr][col - dc] = EMPTY
-    except:
-        pass
-
-    # take care of pincher captures
-    for (dr, dc) in ROOK_MOVES:
-        # dr is change in row
-        # dc is change in column
+    elif capture_as == 'other':
+        capture_made = False
+        new_board = make_move(board, position, new_position)
         try:
-            # if theres a matching colored piece 2 steps away and an enemy one step away in this direction
-            # also, the piece being captured must be a pincher
-            if new_board.board[nrow][ncol] % 2 == new_board.board[nrow + 2*dr][ncol + 2*dc] % 2 and new_board.board[nrow][ncol] % 2 != new_board.board[nrow + dr][ncol + dc] % 2 and new_board.board[nrow + dr][ncol + dc] in [2,3]:
-                new_board.board[nrow + dr][ncol + dc] = EMPTY
+            if new_board.board[row - dr][col - dc] in [10, 11] and new_board.board[row - dr][col - dc] % 2 != board.whose_move:
+                new_board.board[row - dr][col - dc] = EMPTY
+                capture_made = True
         except:
             pass
 
-
-    # take care of coordinator captures
-    for i, row in enumerate(new_board.board):
-        for j, piece in enumerate(row):
-            if piece in [12, 13] and piece % 2 == new_board.whose_move:
-                # find kings location
-                king_row = i
-                king_col = j
-
-                # if there is an enemy piece at the intersection of coordinator row and king column, capture it
-                if new_board.board[nrow][king_col] in [4,5] and new_board.board[nrow][king_col] % 2 != new_board.whose_move:
-                    new_board.board[nrow][king_col] = EMPTY
-
-                # if there is an enemy piece at the intersection of coordinator row and king column, capture it
-                if new_board.board[king_row][ncol] in [4,5] and new_board.board[king_row][ncol] % 2 != new_board.whose_move:
-                    new_board.board[king_row][ncol] = EMPTY
-                break
+        # NOTE: ONLY return if captures are made in order to prevent unnecessarily expanding state tree. i.e. dont want
+        # to have a state for capturing as a withdrawer, a state for capturing as a coordinator, etc when all of them dont
+        # capture anything and generate identical states.
+        if capture_made:
+            revert_empty(new_board)
+            yield new_board
+            # reset board for next possible capture type
+            new_board = make_move(board, position, new_position)
+            any_captures_made = True
 
 
-    revert_empty(new_board)
-    return new_board
+        # take care of pincher captures
+        capture_made = False
+        for (dr, dc) in ROOK_MOVES:
+            # dr is change in row
+            # dc is change in column
+            try:
+                # if theres a matching colored piece 2 steps away and an enemy one step away in this direction
+                # also, the piece being captured must be a pincher
+                if new_board.board[nrow][ncol] % 2 == new_board.board[nrow + 2*dr][ncol + 2*dc] % 2 and new_board.board[nrow][ncol] % 2 != new_board.board[nrow + dr][ncol + dc] % 2 and new_board.board[nrow + dr][ncol + dc] in [2,3]:
+                    new_board.board[nrow + dr][ncol + dc] = EMPTY
+                    capture_made = True
+            except:
+                pass
+
+        if capture_made:
+            revert_empty(new_board)
+            yield new_board
+            # reset board for next move type
+            new_board = make_move(board, position, new_position)
+            any_captures_made = True
+
+
+        # take care of coordinator captures
+        capture_made = False
+        for i, row in enumerate(new_board.board):
+            for j, piece in enumerate(row):
+                if piece in [12, 13] and piece % 2 == new_board.whose_move:
+                    # find kings location
+                    king_row = i
+                    king_col = j
+
+                    # if there is an enemy piece at the intersection of coordinator row and king column, capture it
+                    if new_board.board[nrow][king_col] in [4,5] and new_board.board[nrow][king_col] % 2 != new_board.whose_move:
+                        new_board.board[nrow][king_col] = EMPTY
+                        capture_made = True
+
+                    # if there is an enemy piece at the intersection of coordinator row and king column, capture it
+                    if new_board.board[king_row][ncol] in [4,5] and new_board.board[king_row][ncol] % 2 != new_board.whose_move:
+                        new_board.board[king_row][ncol] = EMPTY
+                        capture_made = True
+
+                    break
+
+        if capture_made:
+            revert_empty(new_board)
+            yield new_board
+            any_captures_made = True
+
+        # if no moves result in a capture (regardless of which piece we are imitating) we still want to return
+        # at least one move: the move that just changes the square of the imitator.
+        if not any_captures_made:
+            revert_empty(new_board)
+            yield new_board
+
 
 def withdrawer_moves(board, position):
     '''
@@ -597,17 +652,29 @@ def no_freezer_near(board, position, flag=False):
 # ''')
 
 
+# test imitator
+INITIAL = parse('''
+- - - - - - - -
+- - - - C - - -
+- - k - p f - -
+- w I - - p P -
+- - - - p f - -
+- - l - P - - -
+- - - - - - - -
+- - - - - - - -
+''')
 
-# INITIAL = parse('''
-# - - - - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# - w I - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# ''')
+INITIAL = parse('''
+- - - - - - - -
+- p - - C - - -
+- - - - - - - -
+- - - - - - - -
+- - - - - - - -
+- K - - - p - -
+f - - - - - - -
+F - - - - - - -
+''')
+
 
 # NOTE: Testing notes
 # Pincer
