@@ -29,23 +29,23 @@ def static_eval(board):
 
             # find piece score: you get a better score if you have more pieces
             if piece % 2 == 0:
-                white_score += weights['piece'] * PIECE_VALUES[piece // 2]
-            else:
                 black_score += weights['piece'] * PIECE_VALUES[piece // 2]
+            else:
+                white_score += weights['piece'] * PIECE_VALUES[piece // 2]
 
             # find freezing score: you get a better score if you have more enemy pieces frozen
             #                    your score is higher if you freeze higher valued pieces
             if piece == 14: # black freezer
-                white_score += weights['freezing'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 1 ])
+                black_score += weights['freezing'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 1 ])
             elif piece == 15:
-                black_score += weights['freezing'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 0 ])
+                white_score += weights['freezing'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 0 ])
 
 
             # find withdrawer score: higher score if withdrawer has a chance of capturing a good piece
             if piece == 10:
-                white_score += weights['withdraw'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 1 ])
+                black_score += weights['withdraw'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 1 ])
             elif piece == 11:
-                black_score += weights['withdraw'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 0 ])
+                white_score += weights['withdraw'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 0 ])
 
             # Pawn/pincer structure: Give points if the pawns have lots of self pinching power: i.e. they lie in an open
 
