@@ -156,13 +156,10 @@ def pincer_captures(board, position, new_position, make_move_and_revert=True):
     for (dr, dc) in ROOK_MOVES:
         # dr is change in row
         # dc is change in column
-        try:
             # if theres a matching colored piece 2 steps away and an enemy one step away in this direction
-            if new_board.board[nrow][ncol] % 2 == new_board.board[nrow + 2*dr][ncol + 2*dc] % 2 and new_board.board[nrow][ncol] % 2 != new_board.board[nrow + dr][ncol + dc] % 2:
-                new_board.board[nrow + dr][ncol + dc] = EMPTY
+        if nrow + 2*dr >= 0 and nrow + 2*dr < NUM_ROWS and ncol + 2*dc >= 0 and ncol + 2*dc < NUM_COLS and new_board.board[nrow][ncol] % 2 == new_board.board[nrow + 2*dr][ncol + 2*dc] % 2 and new_board.board[nrow][ncol] % 2 != new_board.board[nrow + dr][ncol + dc] % 2:
+            new_board.board[nrow + dr][ncol + dc] = EMPTY
 
-        except:
-            pass
 
     if make_move_and_revert: revert_empty(new_board)
     return new_board
@@ -392,12 +389,9 @@ def imitator_captures(board, position, new_position, direction, steps, capture_a
     elif capture_as == 'other':
         capture_made = False
         new_board = make_move(board, position, new_position)
-        try:
-            if new_board.board[row - dr][col - dc] in [10, 11] and new_board.board[row - dr][col - dc] % 2 != board.whose_move:
-                new_board.board[row - dr][col - dc] = EMPTY
-                capture_made = True
-        except:
-            pass
+        if row - dr >= 0 and row - dr < NUM_ROWS and col - dc  >= 0 and col - dc < NUM_COLS and new_board.board[row - dr][col - dc] in [10, 11] and new_board.board[row - dr][col - dc] % 2 != board.whose_move:
+            new_board.board[row - dr][col - dc] = EMPTY
+            capture_made = True
 
         # NOTE: ONLY return if captures are made in order to prevent unnecessarily expanding state tree. i.e. dont want
         # to have a state for capturing as a withdrawer, a state for capturing as a coordinator, etc when all of them dont
@@ -415,14 +409,14 @@ def imitator_captures(board, position, new_position, direction, steps, capture_a
         for (dr, dc) in ROOK_MOVES:
             # dr is change in row
             # dc is change in column
-            try:
-                # if theres a matching colored piece 2 steps away and an enemy one step away in this direction
-                # also, the piece being captured must be a pincher
-                if new_board.board[nrow][ncol] % 2 == new_board.board[nrow + 2*dr][ncol + 2*dc] % 2 and new_board.board[nrow][ncol] % 2 != new_board.board[nrow + dr][ncol + dc] % 2 and new_board.board[nrow + dr][ncol + dc] in [2,3]:
-                    new_board.board[nrow + dr][ncol + dc] = EMPTY
-                    capture_made = True
-            except:
-                pass
+
+            # if theres a matching colored piece 2 steps away and an enemy one step away in this direction
+            # also, the piece being captured must be a pincher
+            if nrow + 2*dr >= 0 and nrow + 2*dr < NUM_ROWS and ncol + 2*dc >= 0 and ncol + 2*dc  < NUM_COLS and \
+                    new_board.board[nrow][ncol] % 2 == new_board.board[nrow + 2*dr][ncol + 2*dc] % 2 and new_board.board[nrow][ncol] % 2 != new_board.board[nrow + dr][ncol + dc] % 2 and new_board.board[nrow + dr][ncol + dc] in [2,3]:
+
+                new_board.board[nrow + dr][ncol + dc] = EMPTY
+                capture_made = True
 
         if capture_made:
             revert_empty(new_board)
@@ -511,13 +505,11 @@ def withdrawer_captures(board, position, new_position, direction, make_move_and_
 
     row = position[0]
     col = position[1]
+    dr = direction[0]
+    dc = direction[1]
 
-    try:
-        if new_board.board[row - dr][col - dc] % 2 != new_board.whose_move:
-            new_board.board[row - dr][col - dc] = EMPTY
-    except:
-        # ran off of board
-        pass
+    if row - dr >= 0 and row - dr < NUM_ROWS and col - dc >= 0 and col - dc < NUM_COLS and new_board.board[row - dr][col - dc] % 2 != new_board.whose_move:
+        new_board.board[row - dr][col - dc] = EMPTY
 
     if make_move_and_revert: revert_empty(new_board)
     return new_board
@@ -539,11 +531,8 @@ def king_moves(board, position):
         # whose move = 1 for white and % 2 == 1 for white pieces
         # whose move = 0 for black and % 2 == EMPTY for black pieces
         # i.e. king can move as long as there isnt a friendly piece there
-        try:
-            if row + dr >= 0 and col + dc >= 0 and board.board[row + dr][col + dc] % 2 != whose_move:
-                yield king_captures(board, position, (row + dr, col + dc))
-        except:
-            pass
+        if row + dr >= 0 and col + dc >= 0 and row + dr < NUM_ROWS and col + dc < NUM_COLS and board.board[row + dr][col + dc] % 2 != whose_move:
+            yield king_captures(board, position, (row + dr, col + dc))
 
 def king_captures(board, position, new_position, make_move_and_revert=True):
     '''
@@ -684,17 +673,17 @@ F - - - - - - -
 #   Pincer does not capture teamates
 #  Pincer does not capture without a teammate on the opposite side of piece
 
-# initial_board = BC_state(INITIAL)
-# initial_board.whose_move = WHITE
-# print("INTIAL BOARD \n\n")
-# print(initial_board)
+initial_board = BC_state(INITIAL)
+initial_board.whose_move = WHITE
+print("INTIAL BOARD \n\n")
+print(initial_board)
 # print(initial_board.board)
 
 # start = time.time()
 
-# for i in range(1):
-#     for move in valid_moves(initial_board): 
-#         print(move) 
+for i in range(1):
+    for move in valid_moves(initial_board): 
+        print(move) 
 
 # print("done!")
 # print("runtime: ", time.time() - start)
