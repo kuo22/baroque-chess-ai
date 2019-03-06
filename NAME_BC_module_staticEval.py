@@ -42,7 +42,7 @@ def static_eval(board):
 
 
             # find withdrawer score: higher score if withdrawer has a chance of capturing a good piece
-            if piece == 10:
+            elif piece == 10:
                 black_score += weights['withdraw'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 1 ])
             elif piece == 11:
                 white_score += weights['withdraw'] * sum([PIECE_VALUES[x // 2] for x in all_neighbors if x % 2 == 0 ])
