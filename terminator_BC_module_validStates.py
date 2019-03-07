@@ -673,17 +673,17 @@ INITIAL = parse('''
 #   Pincer does not capture teamates
 #  Pincer does not capture without a teammate on the opposite side of piece
 
-initial_board = BC_state(INITIAL)
-initial_board.whose_move = WHITE
-print("INTIAL BOARD \n\n")
-print(initial_board)
-# print(initial_board.board)
+# initial_board = BC_state(INITIAL)
+# initial_board.whose_move = WHITE
+# print("INTIAL BOARD \n\n")
+# print(initial_board)
+# # print(initial_board.board)
 
-# start = time.time()
+# # start = time.time()
 
-for i in range(1):
-    for move in valid_moves(initial_board): 
-        print(move) 
+# for i in range(1):
+#     for move in valid_moves(initial_board): 
+#         print(move) 
 
 # print("done!")
 # print("runtime: ", time.time() - start)
