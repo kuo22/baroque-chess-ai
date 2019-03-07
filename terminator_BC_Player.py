@@ -1,3 +1,7 @@
+'''
+terminator_BC_Player.py
+'''
+
 import BC_state_etc as BC
 import terminator_BC_module_validStates as vs
 import terminator_BC_module_staticEval as se
@@ -8,7 +12,7 @@ BLACK = 0
 WHITE = 1
 start_time = 0
 
-def makeMove(currentState, currentRemark, timelimit=10000):
+def makeMove(currentState, currentRemark, timelimit=10):
     global start_time
     start_time = time.perf_counter()
 
@@ -51,7 +55,7 @@ def makeMove(currentState, currentRemark, timelimit=10000):
                     position_B = (i, j)
     
     move = (position_A, position_B)
-    print('the coordinates: ' + str(move))
+    #print('the coordinates: ' + str(move))
 
     # Change who's turn
     best_state.whose_move = 1 - currentState.whose_move
@@ -82,7 +86,7 @@ def alpha_beta(current_state, current_depth, max_ply, player, alpha, beta, time_
         if hash_value in zh.zob_table:
             move_value = zh.zob_table[hash_value]
         else:
-            move_value = se.static_eval(state)
+            move_value = staticEval(state)
             zh.zob_table[hash_value] = move_value
         if player == WHITE:
             if move_value > alpha:
@@ -112,4 +116,11 @@ def introduce():
 
 def prepare(player2Nickname):
     zh.init_table()
-    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+
+
+
+
+######################
+
+def staticEval(state):
+    return se.static_eval(state)
