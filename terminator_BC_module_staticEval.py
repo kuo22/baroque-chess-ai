@@ -24,7 +24,7 @@ def static_eval(board):
         for j, piece in enumerate(row):
 
             ortho_neighbors = get_neighbors(board, i, j, ROOK_MOVES)
-            diag_neighbors = get_neighbors(board, i,j, DIAGONAL_MOVES)
+            diag_neighbors = get_neighbors(board, i, j, DIAGONAL_MOVES)
             all_neighbors = ortho_neighbors + diag_neighbors
 
             # find piece score: you get a better score if you have more pieces
@@ -56,13 +56,16 @@ def static_eval(board):
     return white_score - black_score
 
 def get_neighbors(board, i, j, directions):
+    num_rows = len(board.board)
+    num_cols = len(board.board[0])
+
     neighbors = []
 
     for (dr, dc) in directions:
-        try:
+        new_row = i + dr
+        new_col = j + dc
+        if new_row >= 0 and new_col >= 0 and new_row < num_rows and new_col < num_cols:
             neighbors.append(board.board[i + dr][j + dc])
-        except:
-            pass
 
     return neighbors
 
