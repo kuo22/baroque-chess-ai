@@ -244,25 +244,26 @@ if __name__ == "__main__":
     max_eval = float("-inf")
 
     # Edit the board to see the best next move!
-#     board = BC.parse('''
-# c l i w k i l f
-# p p p p p p p p
-# - - - - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# P P P P P P P P
-# F L I W K I L C''')
-
     board = BC.parse('''
-- - - k - - - -
+c l i w k i l f
+p p p p p p p p
 - - - - - - - -
 - - - - - - - -
 - - - - - - - -
 - - - - - - - -
-- - - - - - - -
-- - - - f - - -
-- - - K - - - -''')
+P P P P P P P P
+F L I W K I L C''')
+
+    # Board for stalemate
+#     board = BC.parse('''
+# - - - k - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - f - - -
+# - - - K - - - -''')
 
     state = BC.BC_state(board, SIDE)
 

@@ -81,27 +81,27 @@ def parse(bs): # bs is board string
       b[iy][jx] = INIT_TO_CODE[rss[jx]]
   return b
 
-# INITIAL = parse('''
-# c l i w k i l f
-# p p p p p p p p
-# - - - - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# P P P P P P P P
-# F L I W K I L C
-# ''')
-
 INITIAL = parse('''
-- - - - - - - -
-- - - - - - - -
-- - - - k - - -
-- - - - - - - -
-- - K - - - - -
+c l i w k i l f
+p p p p p p p p
 - - - - - - - -
 - - - - - - - -
 - - - - - - - -
+- - - - - - - -
+P P P P P P P P
+F L I W K I L C
 ''')
+
+# INITIAL = parse('''
+# - - - - - - - -
+# - - - - - - - -
+# - - - - k - - -
+# - - - - - - - -
+# - - K - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# ''')
 
 class BC_state:
     def __init__(self, old_board=INITIAL, whose_move=WHITE):
