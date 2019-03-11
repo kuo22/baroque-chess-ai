@@ -42,6 +42,9 @@ def static_eval(board):
 
     white_score = 0
     black_score = 0
+    black_king_alive = False
+    white_king_alive = False
+
     for i, row in enumerate(board.board):
         for j, piece in enumerate(row):
 
@@ -90,13 +93,21 @@ def static_eval(board):
             # check if king is well-defended. In this game, as most pieces capture by needing a line of site to the king
             # it will be beneficial if we have a few friendly pieces nearby and less enemy pieces
             elif piece == 12: # black king
+                black_king_alive = True
                 black_score += weights['king_Def'] * sum([1 for x in all_neighbors if x % 2 == 0]) # friendly pieces
                 black_score -= weights['king_Def'] * sum([1 for x in all_neighbors if x % 2 == 1]) # enemy pieces
 
             elif piece == 13: # white king
+                white_king_alive = True
                 white_score += weights['king_Def'] * sum([1 for x in all_neighbors if x % 2 == 1]) # friendly pieces
                 white_score -= weights['king_Def'] * sum([1 for x in all_neighbors if x % 2 == 0]) # enemy pieces
+
             
+    if not black_king_alive:
+        return 100000
+    
+    if not white_king_alive:
+        return -100000
 
     return white_score - black_score
 
