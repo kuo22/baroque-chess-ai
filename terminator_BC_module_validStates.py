@@ -1,3 +1,21 @@
+'''
+Zachary McNulty & Kuo Hong
+
+terminator_BC_module_validStates.py
+
+Given a BC_State board for a Baroque Chess Game, this returns all the possible
+moves for the player whose turn it currently is. It assumes a few things about the rules
+of the game
+    
+    - Leapers can only jump one piece at a time
+    - Imitators can freeze Freezers (and adjacent pieces) but the two do NOT cancel out
+    - King can move into check
+    - Imitators can only capture as one type of piece per move
+    - No "suicide" moves where frozen pieces sacrifice themselves in place of a move
+
+This method acts as a python generator, returning valid moves one at a time.
+
+'''
 # given a current Baroque Board, returns a generator which generates all the 
 # valid move for the player whose turn it currently is
 WHITE = 1
@@ -642,27 +660,27 @@ def no_freezer_near(board, position, flag=False):
 
 
 # test imitator
-INITIAL = parse('''
-- - - - - - - -
-- - - - C - - -
-- - k - p f - -
-- w I - - p P -
-- - - - p f - -
-- - l - P - - -
-- - - - - - - -
-- - - - - - - -
-''')
+# INITIAL = parse('''
+#- - - - - - - -
+#- - - - C - - -
+#- - k - p f - -
+#- w I - - p P -
+#- - - - p f - -
+#- - l - P - - -
+#- - - - - - - -
+#- - - - - - - -
+#''')
 
-INITIAL = parse('''
-- - - - - - - -
-- - - - - - l -
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-- - - - - - - -
-- - - - - - L -
-- - - - - - - -
-''')
+#INITIAL = parse('''
+#- - - - - - - -
+#- - - - - k - -
+#- - - - F - - -
+#- - - - - - - -
+#- - - - - - - -
+#- - - - - - - -
+#- - - - - - - -
+#- - - - - - - -
+#''')
 
 
 # NOTE: Testing notes
@@ -673,17 +691,17 @@ INITIAL = parse('''
 #   Pincer does not capture teamates
 #  Pincer does not capture without a teammate on the opposite side of piece
 
-# initial_board = BC_state(INITIAL)
-# initial_board.whose_move = WHITE
-# print("INTIAL BOARD \n\n")
-# print(initial_board)
+#initial_board = BC_state(INITIAL)
+#initial_board.whose_move = BLACK
+#print("INTIAL BOARD \n\n")
+#print(initial_board)
 # # print(initial_board.board)
 
 # # start = time.time()
 
-# for i in range(1):
-#     for move in valid_moves(initial_board): 
-#         print(move) 
+#for i in range(1):
+#    for move in valid_moves(initial_board): 
+#        print(move) 
 
 # print("done!")
 # print("runtime: ", time.time() - start)

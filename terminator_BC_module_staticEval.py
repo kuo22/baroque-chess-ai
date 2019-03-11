@@ -1,3 +1,19 @@
+'''
+Zachary McNulty & Kuo Hong
+
+terminator_BC_module_staticEval.StopAsyncIteration
+
+This file contains the static evaluation function used by our agent
+to evaluate the state of a given board. It uses several heuristics
+to score each board including:
+    - which pieces remain
+    - how many pieces are frozen
+    - how "structured" are the pawns/pincers
+    - how well-defended is the king
+
+'''
+
+
 from BC_state_etc import BC_state
 import time
 
