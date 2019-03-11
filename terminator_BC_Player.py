@@ -36,7 +36,7 @@ def makeMove(currentState, currentRemark, timelimit=10):
         best_state = alpha_beta(newState, 0, current_max_ply, newState.whose_move, float("-inf"), float("inf"), timelimit)
         current_max_ply += 1
         end_time = time.perf_counter()
-        if end_time - start_time > timelimit * 0.90:
+        if end_time - start_time > timelimit * 0.95:
             best_state = last_best
             break 
 
@@ -74,7 +74,7 @@ def makeMove(currentState, currentRemark, timelimit=10):
 def alpha_beta(current_state, current_depth, max_ply, player, alpha, beta, time_lim):
     global start_time
     current_time = time.perf_counter()
-    if current_time - start_time > time_lim * 0.9:
+    if current_time - start_time > time_lim * 0.95:
         return current_state
 
     moves = vs.valid_moves(current_state)
@@ -146,7 +146,7 @@ def demo(currentState, max_ply=10, hash=True, time_limit=10):
         best_state = demo_search(newState, 0, current_max_ply, newState.whose_move, float("-inf"), float("inf"), time_limit)
         current_max_ply += 1
         end_time = time.perf_counter()
-        if end_time - start_time > time_limit * 0.90:
+        if end_time - start_time > time_limit * 0.95:
             best_state = last_best
             break 
 
@@ -187,7 +187,7 @@ def demo(currentState, max_ply=10, hash=True, time_limit=10):
 def demo_search(current_state, current_depth, max_ply, player, alpha, beta, time_lim):
     global start_time, ZOBRIST_HASHING, states_evaluated, times_pruned, min_eval, max_eval, retrieved_from_hash
     current_time = time.perf_counter()
-    if current_time - start_time > time_lim * 0.9:
+    if current_time - start_time > time_lim * 0.95:
         return current_state
 
     moves = vs.valid_moves(current_state)
