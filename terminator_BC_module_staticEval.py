@@ -1,5 +1,3 @@
-
-
 from BC_state_etc import BC_state
 import time
 
@@ -11,8 +9,8 @@ import time
 # Uses the piece number / 2 as the key and the piece value as the value
 # 1 = Pincer, 2 = Coordinator, 3 = Leaperm 4 = imitator, 5 = withdrawer, 6 = King, 7 = Freezer
 # 0 = EMPTY square
-PIECE_VALUES = {0:0, 1:1, 2:2, 3:5, 4:5, 5:2, 6:100, 7:8}
-weights = {'piece':1, 'freezing':1, 'withdraw':1, 'pinch':1, 'king_Def':10 }
+PIECE_VALUES = {0:0, 1:1, 2:5, 3:5, 4:5, 5:2, 6:100, 7:8}
+weights = {'piece':5, 'freezing':3, 'withdraw':0, 'pinch':1, 'king_Def':1 }
 
 DIAGONAL_MOVES = [(1,-1), (1,1), (-1,1), (-1,-1)]
 ROOK_MOVES = [(0,1), (1,0), (-1,0), (0,-1)]
@@ -30,6 +28,10 @@ def static_eval(board):
     black_score = 0
     for i, row in enumerate(board.board):
         for j, piece in enumerate(row):
+
+            # do not need to do any calculations for empty square
+            if piece == 0:
+                continue
 
             ortho_neighbors = get_neighbors(board, i, j, ROOK_MOVES)
             diag_neighbors = get_neighbors(board, i, j, DIAGONAL_MOVES)
@@ -52,13 +54,13 @@ def static_eval(board):
 
             # find withdrawer score: higher score if withdrawer has a chance of capturing a good piece
             # i.e. counts the neighbors of a withdrawer where there is an empty square in opposite direction
-            elif piece == 10:
-                takeable_neighbors = check_withdrawer(board, i, j)
-                black_score += weights['withdraw'] * sum([PIECE_VALUES[x // 2] for x in takeable_neighbors if x % 2 == 1 ])
-
-            elif piece == 11:
-                takeable_neighbors = check_withdrawer(board, i, j)
-                white_score += weights['withdraw'] * sum([PIECE_VALUES[x // 2] for x in takeable_neighbors if x % 2 == 0 ])
+#            elif piece == 10:
+#                takeable_neighbors = check_withdrawer(board, i, j)
+#                black_score += weights['withdraw'] * sum([PIECE_VALUES[x // 2] for x in takeable_neighbors if x % 2 == 1 ])
+#
+#            elif piece == 11:
+#                takeable_neighbors = check_withdrawer(board, i, j)
+#                white_score += weights['withdraw'] * sum([PIECE_VALUES[x // 2] for x in takeable_neighbors if x % 2 == 0 ])
 
             # Pawn/pincer structure: Give points if the pawns have lots of self pinching power: i.e. they lie in an open
             # line with another piece of theres, with at most one black piece between them
@@ -70,10 +72,11 @@ def static_eval(board):
 
         
             # check if king is well-defended. In this game, as most pieces capture by needing a line of site to the king
-            # it will be beneficial if we have a few friendly pieces nearby and no enemy pieces
+            # it will be beneficial if we have a few friendly pieces nearby and less enemy pieces
             elif piece == 12: # black king
                 black_score += weights['king_Def'] * sum([1 for x in all_neighbors if x % 2 == 0]) # friendly pieces
                 black_score -= weights['king_Def'] * sum([1 for x in all_neighbors if x % 2 == 1]) # enemy pieces
+
             elif piece == 13: # white king
                 white_score += weights['king_Def'] * sum([1 for x in all_neighbors if x % 2 == 1]) # friendly pieces
                 white_score -= weights['king_Def'] * sum([1 for x in all_neighbors if x % 2 == 0]) # enemy pieces
@@ -91,7 +94,8 @@ def get_neighbors(board, i, j, directions):
         new_row = i + dr
         new_col = j + dc
         if new_row >= 0 and new_col >= 0 and new_row < NUM_ROWS and new_col < NUM_COLS:
-            neighbors.append(board.board[i + dr][j + dc])
+            if board.board[new_row][new_col] != 0:
+                neighbors.append(board.board[i + dr][j + dc])
 
     return neighbors
 
@@ -130,7 +134,7 @@ def check_withdrawer(board, i, j):
         
         if new_col >= 0 and new_row >= 0 and new_col < NUM_COLS and new_row < NUM_ROWS and back_col >=0 and back_col < NUM_COLS and back_row >= 0 and back_row < NUM_ROWS:
 
-            if board.board[new_row][new_col] % 2 != board.board[i][j] % 2 and board.board[back_row][back_col] == 0:
+            if board.board[new_row][new_col] != 0 and board.board[new_row][new_col] % 2 != board.board[i][j] % 2 and board.board[back_row][back_col] == 0:
                 # if there is an enemy ahead and nothing behind me!
                 takeable_neighbors.append(board.board[new_row][new_col])
 
