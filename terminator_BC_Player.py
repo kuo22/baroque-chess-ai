@@ -1,4 +1,4 @@
-'''
+'''Kuo Hong, Zachary McNulty
 terminator_BC_Player.py
 
 Agent file for playing Baroque Chess using the BaroqueGameMaster.py file.
