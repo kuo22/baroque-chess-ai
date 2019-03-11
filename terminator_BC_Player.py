@@ -11,9 +11,12 @@ import time
 BLACK = 0
 WHITE = 1
 start_time = 0
+REMARKS = ['I will be Baroque.', 'Prepare for decimation.', 'Going for Baroque.', 'Hasta la vista, baby.', 'Give me your pieces.', 'I will destroy Baroque Chess.',
+            'I sense injuries. The data could be called "checkmate".', 'Coordinate with me if you want to live.', 'You have been terminated.']
+remark_count = 0
 
 def makeMove(currentState, currentRemark, timelimit=10):
-    global start_time
+    global start_time, remark_count
     start_time = time.perf_counter()
 
     # Compute the new state for a move.
@@ -22,6 +25,8 @@ def makeMove(currentState, currentRemark, timelimit=10):
 
     # Fix up whose turn it will be.
     # newState.whose_move = currentState.whose_move
+    newRemark = REMARKS[remark_count % 10]
+    remark_count += 1
 
     best_state = newState
     last_best = None
@@ -57,13 +62,11 @@ def makeMove(currentState, currentRemark, timelimit=10):
     move = (position_A, position_B)
     if position_A is None:
         move = None
+        newRemark = 'I believe I have no legal moves.'
     #print('the coordinates: ' + str(move))
 
     # Change who's turn
     best_state.whose_move = 1 - currentState.whose_move
-
-    # Make up a new remark
-    newRemark = "I'll think harder in some future game. Here's my move"
 
     return [[move, best_state], newRemark]
 
@@ -232,7 +235,7 @@ def demo_search(current_state, current_depth, max_ply, player, alpha, beta, time
     
 
 if __name__ == "__main__":
-    MAX_PLY = 4 # How many moves ahead to consider
+    MAX_PLY = 3 # How many moves ahead to consider
     ZOBRIST_HASHING = True # Use zobrist hashing if true
     TIME_LIMIT = 99 # Time limit to calculation in seconds
     SIDE = WHITE # Which side should make the move
@@ -256,13 +259,33 @@ F L I W K I L C''')
 
     # Board for stalemate
 #     board = BC.parse('''
+# k - - - - - - -
+# - W - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - - - - - -
+# - - - K - - - -''')
+
+#     board = BC.parse('''
+# - - - - - - - -
+# - - - - - - - -
 # - - - k - - - -
 # - - - - - - - -
 # - - - - - - - -
+# - - - - - - - C
+# - - - - - - - -
+# - - - K - - - -''')
+
+#     board = BC.parse('''
+# k - - - - - - -
+# - W - - - - - -
 # - - - - - - - -
 # - - - - - - - -
 # - - - - - - - -
-# - - - - f - - -
+# - - - - - - - -
+# - - - - - - - -
 # - - - K - - - -''')
 
     state = BC.BC_state(board, SIDE)
