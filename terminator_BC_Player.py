@@ -1,5 +1,8 @@
 '''
 terminator_BC_Player.py
+
+Agent file for playing Baroque Chess using the BaroqueGameMaster.py file.
+This file can be run to calculate the move of one state and also print out some useful statistics about the calculation.
 '''
 
 import BC_state_etc as BC

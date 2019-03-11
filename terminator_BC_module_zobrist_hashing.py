@@ -1,3 +1,9 @@
+'''
+terminator_BC_module_zobrist_hashing.py
+
+This is the implementation of zobrist hashing for Baroque Chess.
+'''
+
 import random
 
 WIDTH = 8
