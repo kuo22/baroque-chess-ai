@@ -124,7 +124,8 @@ def nickname():
     return "Terminator"
 
 def introduce():
-    return "I come from the future where people actually play Baroque Chess.  My sole purpose is to destroy it so no one has to play this abomination."
+    return '''I am the Terminator.  I come from the future where people actually play Baroque Chess.  My sole purpose is to destroy it so no one has to play this abomination.
+I was created by Kuo Hong (kuo22) and Zachary McNulty (zmcnulty)'''
 
 def prepare(player2Nickname):
     zh.init_table()
