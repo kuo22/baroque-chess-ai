@@ -97,11 +97,21 @@ F L I W K I L C
 # - - - - - - - -
 # - - - - k - - -
 # - - - - - - - -
-# - - K - - - - -
+# - - K f - - - -
 # - - - - - - - -
 # - - - - - - - -
 # - - - - - - - -
 # ''')
+
+# INITIAL = parse('''
+# - - - - - - - -
+# - - - k p - - p
+# - - - - F - - -
+# - L - - - - - P
+# - - - P - I - -
+# - - - - - - - -
+# P - P - - P - -
+# I - - W K - - C''')
 
 class BC_state:
     def __init__(self, old_board=INITIAL, whose_move=WHITE):

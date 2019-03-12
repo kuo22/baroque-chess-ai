@@ -15,7 +15,8 @@ BLACK = 0
 WHITE = 1
 start_time = 0
 REMARKS = ['I will be Baroque.', 'Prepare for decimation.', 'Going for Baroque.', 'Hasta la vista, baby.', 'Give me your pieces.', 'I will destroy Baroque Chess.',
-            'I sense injuries. The data could be called "checkmate".', 'Coordinate with me if you want to live.', 'You have been terminated.']
+            'I sense injuries. The data could be called "checkmate".', 'Coordinate with me if you want to live.', 'You have been terminated.', 
+            'The T-1000 is extra vulnerable to the freezer.']
 remark_count = 0
 
 def makeMove(currentState, currentRemark, timelimit=10):
@@ -34,7 +35,10 @@ def makeMove(currentState, currentRemark, timelimit=10):
     best_state = newState
     last_best = None
     current_max_ply = 1
-    while current_max_ply < 10:
+    while current_max_ply <= 7:
+        # Stops checking the tree once a winning move is found.
+        if (newState.whose_move == WHITE and staticEval(best_state) == 100000) or (newState.whose_move == BLACK and staticEval(best_state) == -100000):
+            break
         last_best = best_state
         best_state = alpha_beta(newState, 0, current_max_ply, newState.whose_move, float("-inf"), float("inf"), timelimit)
         current_max_ply += 1
@@ -120,7 +124,8 @@ def nickname():
     return "Terminator"
 
 def introduce():
-    return "I come from the future where people actually play Baroque Chess.  My sole purpose is to destroy it so no one has to play this abomination."
+    return '''I am the Terminator.  I come from the future where people actually play Baroque Chess.  My sole purpose is to destroy it so no one has to play this abomination.
+I was created by Kuo Hong (kuo22) and Zachary McNulty (zmcnulty)'''
 
 def prepare(player2Nickname):
     zh.init_table()
@@ -145,6 +150,8 @@ def demo(currentState, max_ply=10, hash=True, time_limit=10):
     last_best = None
     current_max_ply = 1
     while current_max_ply <= max_ply:
+        if (newState.whose_move == WHITE and staticEval(best_state) == 100000) or (newState.whose_move == BLACK and staticEval(best_state) == -100000):
+            break
         last_best = best_state
         best_state = demo_search(newState, 0, current_max_ply, newState.whose_move, float("-inf"), float("inf"), time_limit)
         current_max_ply += 1
@@ -235,13 +242,14 @@ def demo_search(current_state, current_depth, max_ply, player, alpha, beta, time
             return optimal_state
 
     return optimal_state
+
     
 
 if __name__ == "__main__":
     MAX_PLY = 3 # How many moves ahead to consider
     ZOBRIST_HASHING = True # Use zobrist hashing if true
-    TIME_LIMIT = 99 # Time limit to calculation in seconds
-    SIDE = WHITE # Which side should make the move
+    TIME_LIMIT = 5 # Time limit to calculation in seconds
+    SIDE = BLACK # Which side should make the move
 
     states_evaluated = 0
     retrieved_from_hash = 0
@@ -282,14 +290,14 @@ F L I W K I L C''')
 # - - - K - - - -''')
 
 #     board = BC.parse('''
-# k - - - - - - -
-# - W - - - - - -
 # - - - - - - - -
+# - - - K P - - P
+# - - - - f - - -
+# - l - - - - - P
+# - - - p - i - -
 # - - - - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# - - - - - - - -
-# - - - K - - - -''')
+# p - p - - p - -
+# i - - w k - - c''')
 
     state = BC.BC_state(board, SIDE)
 
