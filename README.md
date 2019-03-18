@@ -6,11 +6,15 @@ This is a collaborative project between me and another student.  We developed a 
 
 `BaroqueGameMaster.py` is used to conducted a game between two bots.  To run this, use the template:
 
-```python3 agentA agentB time_limit```
+```
+python3 agentA agentB time_limit
+```
 
 An example would be:
 
-```python3 BaroqueGameMaster.py terminator_BC_Player terminator_BC_Player 5```
+```
+python3 BaroqueGameMaster.py terminator_BC_Player terminator_BC_Player 5
+```
 
 Running this starts printing a game in the terminal between two bots where each move needs to be made within 5 seconds.
 
